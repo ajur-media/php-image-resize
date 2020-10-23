@@ -1,0 +1,48 @@
+{
+  "name": "ajur-media/php-image-resize",
+  "description": "PHP class to resize and scale images",
+  "keywords": [
+    "php",
+    "image",
+    "resize",
+    "scale"
+  ],
+  "type": "library",
+  "homepage": "https://github.com/ajur-media/php-image-resize",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Aditya Patadia",
+      "homepage": "http://aditya.patadia.org/"
+    },
+    {
+      "name": "Karel Wintersky",
+      "homepage": "http://wintersky.me"
+    }
+  ],
+  "require": {
+    "php": ">=7.*",
+    "ext-gd": "*",
+    "ext-fileinfo": "*",
+    "ext-exif": "*",
+    "ext-json": "*"
+  },
+  "suggest": {
+    "ext-exif": "Auto-rotate jpeg files"
+  },
+  "autoload": {
+    "psr-4": {
+      "Gumlet\\": "lib/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Gumlet\\": "test/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4.8",
+    "apigen/apigen": "^4.1",
+    "php-coveralls/php-coveralls": "^2.1"
+  }
+}
