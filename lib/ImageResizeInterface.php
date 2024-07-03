@@ -31,7 +31,7 @@ interface ImageResizeInterface
      * @return ImageResize
      * @throws ImageResizeException
      */
-    public static function createFromString($image_data);
+    public static function createFromString(string $image_data): ImageResize;
     
     /**
      * Add filter function for use right before save image to file.
@@ -39,7 +39,7 @@ interface ImageResizeInterface
      * @param callable $filter
      * @return $this
      */
-    public function addFilter(callable $filter);
+    public function addFilter(callable $filter): ImageResizeInterface;
     
     /**
      * Creating
@@ -241,4 +241,5 @@ interface ImageResizeInterface
      * @return static
      */
     public function setQualityWebp($quality);
+
 }

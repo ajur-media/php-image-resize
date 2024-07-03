@@ -65,7 +65,7 @@ class ImageResize implements ImageResizeInterface
     
     protected $filters = [];
     
-    public static function createFromString($image_data)
+    public static function createFromString(string $image_data):ImageResize
     {
         if (empty( $image_data ) || $image_data === null) {
             throw new ImageResizeException( __CLASS__ . ' ERROR: image_data must not be empty.' );
@@ -79,27 +79,22 @@ class ImageResize implements ImageResizeInterface
             define('IMAGETYPE_WEBP', 18);
         }
         
-        if ($filename === null || empty($filename))
+        if (empty($filename)) {
             throw new ImageResizeException(__CLASS__ . " ERROR: No filename given");
+        }
         
         if (substr( $filename, 0, 5 ) !== 'data:' && !is_file( $filename )) {
             throw new ImageResizeException( __CLASS__ . " ERROR: Not a file or valid datastream" );
         }
         
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        if (false === $finfo)
+        if (false === $finfo) {
             throw new ImageResizeException(__CLASS__ . " ERROR: Can't retrieve file info.");
+        }
         
         $checkWEBP = false;
         
-        if (strstr( finfo_file( $finfo, $filename ), 'image' ) === false) {
-            if (version_compare( PHP_VERSION, '7.0.0', '<=' ) && strstr( file_get_contents( $filename, false, null, 0, 50 ), 'WEBPVP8' ) !== false) {
-                $checkWEBP = true;
-                $this->source_type = IMAGETYPE_WEBP;
-            } else {
-                throw new ImageResizeException( __CLASS__ . ' ERROR: Unsupported file type (WEBP)' );
-            }
-        } elseif (strstr( finfo_file( $finfo, $filename ), 'image/webp' ) !== false) {
+        if (strstr( finfo_file( $finfo, $filename ), 'image/webp' ) !== false) {
             $checkWEBP = true;
             $this->source_type = IMAGETYPE_WEBP;
         }
@@ -135,6 +130,10 @@ class ImageResize implements ImageResizeInterface
                 $this->source_image = imagecreatefromwebp( $filename );
                 break;
             }
+            case IMAGETYPE_BMP: {
+                $this->source_image = imagecreatefrombmp( $filename );
+                break;
+            }
             default: {
                 throw new ImageResizeException( __CLASS__ . ' ERROR: Unsupported image type' );
             }
@@ -151,7 +150,7 @@ class ImageResize implements ImageResizeInterface
         return $this->resize( $this->getSourceWidth(), $this->getSourceHeight() );
     }
     
-    public function addFilter(callable $filter)
+    public function addFilter(callable $filter): ImageResize
     {
         $this->filters[] = $filter;
         return $this;
@@ -180,11 +179,11 @@ class ImageResize implements ImageResizeInterface
         $orientation = $exif[ 'Orientation' ];
         
         if ($orientation === 6 || $orientation === 5) {
-            $img = imagerotate( $img, 270, null );
+            $img = imagerotate( $img, 270, 0 );
         } elseif ($orientation === 3 || $orientation === 4) {
-            $img = imagerotate( $img, 180, null );
+            $img = imagerotate( $img, 180, 0 );
         } elseif ($orientation === 8 || $orientation === 7) {
-            $img = imagerotate( $img, 90, null );
+            $img = imagerotate( $img, 90, 0 );
         }
         
         if (false === $img)
@@ -192,8 +191,9 @@ class ImageResize implements ImageResizeInterface
         
         if ($orientation === 5 || $orientation === 4 || $orientation === 7) {
             if (function_exists( 'imageflip' )) {
-                if (false === imageflip( $img, IMG_FLIP_HORIZONTAL ))
+                if (!imageflip( $img, IMG_FLIP_HORIZONTAL )) {
                     throw new ImageResizeException(__CLASS__ . ' ERROR: Flipping image failed.');
+                }
                 
             } else {
                 $this->imageFlip( $img, IMG_FLIP_HORIZONTAL );
@@ -222,62 +222,72 @@ class ImageResize implements ImageResizeInterface
         switch ($image_type) {
             case IMAGETYPE_GIF: {
                 $dest_image = imagecreatetruecolor( $_width, $_height );
-                if (false === $dest_image)
+                if (false === $dest_image) {
                     throw new ImageResizeException(__CLASS__ . ' Error creating image/gif resource');
+                }
     
                 $transparent_color = imagecolorallocatealpha( $dest_image, 255, 255, 255, 1 );
-                if (false === $transparent_color)
+                if (false === $transparent_color) {
                     throw new ImageResizeException(__CLASS__ . ' Error creating background alpha color.');
+                }
     
                 $transparent_color = imagecolortransparent( $dest_image, $transparent_color );
-                if (false === $transparent_color)
+                if (-1 === $transparent_color) {
                     throw new ImageResizeException(__CLASS__ . ' Error defining color as transparent.');
+                }
                 
-                if (false === imagefill( $dest_image, 0, 0, $transparent_color ))
+                if (!imagefill( $dest_image, 0, 0, $transparent_color )) {
                     throw new ImageResizeException(__CLASS__ . ' Error: filling image with background alpha color failed.');
+                }
     
                 //@todo: ???  https://stackoverflow.com/a/11920133/5127037
-                if (false === imagesavealpha( $dest_image, true ))
+                if (!imagesavealpha( $dest_image, true )) {
                     throw new ImageResizeException(__CLASS__ . ' Error: setting the flag to save full alpha channel information.');
+                }
                 
                 break;
             }
     
             case IMAGETYPE_JPEG: {
                 $dest_image = imagecreatetruecolor( $_width, $_height );
-                if (false === $dest_image)
+                if (false === $dest_image) {
                     throw new ImageResizeException(__CLASS__ . ' Error creating image/jpeg resource');
+                }
                 
                 $transparent_color = imagecolorallocate( $dest_image, 255, 255, 255 );
-                if (false === $transparent_color)
+                if (false === $transparent_color) {
                     throw new ImageResizeException(__CLASS__ . ' Error creating background alpha color');
+                }
                 
-                if (false === imagefilledrectangle( $dest_image, 0, 0, $_width, $_height, $transparent_color ))
+                if (!imagefilledrectangle( $dest_image, 0, 0, $_width, $_height, $transparent_color )) {
                     throw new ImageResizeException(__CLASS__ . ' Error: filling image with background color failed');
+                }
                 
                 break;
             }
     
             case IMAGETYPE_WEBP: {
-                if (version_compare( PHP_VERSION, '5.5.0', '<' ))
-                    throw new ImageResizeException( __CLASS__ . ' For WebP support PHP >= 5.5.0 is required' );
-                
                 $dest_image = imagecreatetruecolor( $_width, $_height );
-                if (false === $dest_image)
+                if (false === $dest_image) {
                     throw new ImageResizeException(__CLASS__ . ' Error creating image/webp resource');
+                }
                 
                 $transparent_color = imagecolorallocate( $dest_image, 255, 255, 255 );
-                if (false === $transparent_color)
+                if (false === $transparent_color) {
                     throw new ImageResizeException(__CLASS__ . ' Error creating background alpha color');
+                }
     
-                if (false === imagefilledrectangle( $dest_image, 0, 0, $_width, $_height, $transparent_color ))
+                if (!imagefilledrectangle( $dest_image, 0, 0, $_width, $_height, $transparent_color )) {
                     throw new ImageResizeException(__CLASS__ . ' Error: filling image with background color failed');
+                }
     
-                if (false === imagealphablending( $dest_image, false ))
+                if (!imagealphablending( $dest_image, false )) {
                     throw new ImageResizeException(__CLASS__ . ' Error setting blending mode for webp image');
+                }
                 
-                if (false === imagesavealpha( $dest_image, true ))
+                if (!imagesavealpha( $dest_image, true )) {
                     throw new ImageResizeException(__CLASS__ . ' Error setting SAVE ALPHA flag');
+                }
     
                 break;
             }
@@ -288,32 +298,39 @@ class ImageResize implements ImageResizeInterface
                 } else {
                     $dest_image = imagecreatetruecolor( $_width, $_height );
                 }
-                if (false === $dest_image)
+                if (false === $dest_image) {
                     throw new ImageResizeException(__CLASS__ . ' Error creating image/png resource');
+                }
     
-                if (false === imagealphablending( $dest_image, false ))
+                if (!imagealphablending( $dest_image, false )) {
                     throw new ImageResizeException(__CLASS__ . ' Error setting blending mode for webp image');
+                }
     
-                if (false === imagesavealpha( $dest_image, true ))
+                if (!imagesavealpha( $dest_image, true )) {
                     throw new ImageResizeException(__CLASS__ . ' Error setting SAVE ALPHA flag');
+                }
     
                 $transparent_color = imagecolorallocatealpha( $dest_image, 255, 255, 255, 127 );
-                if (false === $transparent_color)
+                if (false === $transparent_color) {
                     throw new ImageResizeException(__CLASS__ . ' Error creating background alpha color');
+                }
     
                 $transparent_color = imagecolortransparent( $dest_image, $transparent_color );
-                if (false === $transparent_color)
+                if (-1 === $transparent_color) {
                     throw new ImageResizeException(__CLASS__ . ' Error defining color as transparent');
+                }
     
-                if (false === imagefill( $dest_image, 0, 0, $transparent_color ))
+                if (!imagefill( $dest_image, 0, 0, $transparent_color )) {
                     throw new ImageResizeException(__CLASS__ . ' Error: filling image with background alpha color failed');
+                }
                 
                 break;
             }
         }
         
-        if (false === imageinterlace( $dest_image, $this->interlace ))
+        if (false === imageinterlace( $dest_image, $this->interlace )) {
             throw new ImageResizeException(__CLASS__ . ' Error setting interlace flag');
+        }
         
         if (!empty( $exact_size ) && is_array( $exact_size )) {
             if ($this->getSourceHeight() < $this->getSourceWidth()) {
@@ -326,12 +343,11 @@ class ImageResize implements ImageResizeInterface
             }
         }
     
-        if ($this->gamma_correction) {
-            if (false === imagegammacorrect( $source_image, 2.2, 1.0 ))
-                throw new ImageResizeException(__CLASS__ . ' Error image gamma correction (2.2 -> 1.0)');
+        if ($this->gamma_correction && !imagegammacorrect( $source_image, 2.2, 1.0 )) {
+            throw new ImageResizeException(__CLASS__ . ' Error image gamma correction (2.2 -> 1.0)');
         }
         
-        if (false === imagecopyresampled(
+        if (!imagecopyresampled(
             $dest_image,
             $source_image,
             $this->dest_x,
@@ -345,10 +361,13 @@ class ImageResize implements ImageResizeInterface
         )) throw new ImageResizeException(__CLASS__ . 'ERROR: Resample image failed');
         
         if ($this->gamma_correction) {
-            if (false === imagegammacorrect( $dest_image, 1.0, 2.2 ))
+            if (!imagegammacorrect( $dest_image, 1.0, 2.2 )) {
                 throw new ImageResizeException(__CLASS__ . ' ERROR: Correction image gamma failed (1.0 -> 2.2)');
-            if (false === imagegammacorrect( $source_image, 1.0, 2.2 ))
+            }
+
+            if (!imagegammacorrect( $source_image, 1.0, 2.2 )) {
                 throw new ImageResizeException(__CLASS__ . ' ERROR: Correction source image gamma failed (1.0 -> 2.2)');
+            }
         }
         
         $this->applyFilter( $dest_image );
@@ -357,8 +376,9 @@ class ImageResize implements ImageResizeInterface
         
         switch ($image_type) {
             case IMAGETYPE_GIF: {
-                if (false === imagegif( $dest_image, $filename ))
+                if (!imagegif( $dest_image, $filename )) {
                     throw new ImageResizeException(__CLASS__ . ' ERROR: storing GIF image failed');
+                }
                 
                 break;
             }
@@ -367,21 +387,21 @@ class ImageResize implements ImageResizeInterface
                     $quality = $this->quality_jpg;
                 }
     
-                if (false === imagejpeg( $dest_image, $filename, $quality ))
+                if (!imagejpeg( $dest_image, $filename, $quality )) {
                     throw new ImageResizeException(__CLASS__ . ' ERROR: storing JPEG image failed');
+                }
                 
                 break;
             }
             case IMAGETYPE_WEBP: {
-                if (version_compare( PHP_VERSION, '5.5.0', '<' )) {
-                    throw new ImageResizeException( __CLASS__ . ' ERROR: PHP > 5.5.0 required for storing images to WebP format' );
-                }
                 if ($quality === null) {
                     $quality = $this->quality_webp;
                 }
                 
-                if (false === imagewebp( $dest_image, $filename, $quality ))
+                if (!imagewebp( $dest_image, $filename, $quality )) {
                     throw new ImageResizeException(__CLASS__ . ' ERROR: storing WEBP image failed');
+                }
+
                 break;
             }
             case IMAGETYPE_PNG: {
@@ -389,20 +409,21 @@ class ImageResize implements ImageResizeInterface
                     $quality = $this->quality_png;
                 }
     
-                if (false === imagepng( $dest_image, $filename, $quality ))
+                if (!imagepng( $dest_image, $filename, $quality )) {
                     throw new ImageResizeException(__CLASS__ . ' ERROR: storing PNG image failed');
+                }
                 
                 break;
             }
         }
         
-        if ($permissions) {
-            if (false === chmod( $filename, $permissions ))
-                throw new ImageResizeException(__CLASS__ . ' ERROR: setting destination file permissions failed');
+        if ($permissions && !chmod( $filename, $permissions )) {
+            throw new ImageResizeException(__CLASS__ . ' ERROR: setting destination file permissions failed');
         }
         
-        if (false === imagedestroy( $dest_image ))
+        if (!imagedestroy( $dest_image )) {
             throw new ImageResizeException(__CLASS__ . ' ERROR: cleaning temporary image failed.');
+        }
         
         return $this;
     }
@@ -410,17 +431,20 @@ class ImageResize implements ImageResizeInterface
     public function getImageAsString($image_type = null, $quality = null)
     {
         $temporary_filename = tempnam( sys_get_temp_dir(), '' );
-        if (false === $temporary_filename)
+        if (false === $temporary_filename) {
             throw new ImageResizeException(__CLASS__ . 'ERROR: generating temporary filename failed');
+        }
         
         $this->save( $temporary_filename, $image_type, $quality );
         
         $data = file_get_contents( $temporary_filename );
-        if (false === $data)
+        if (false === $data) {
             throw new ImageResizeException(__CLASS__ . ' ERROR: loading temporary file failed');
+        }
         
-        if (false === unlink( $temporary_filename ))
+        if (!unlink( $temporary_filename )) {
             throw new ImageResizeException(__CLASS__ . ' ERROR: unlinking temporary file failed');
+        }
         
         return $data;
     }
@@ -495,7 +519,7 @@ class ImageResize implements ImageResizeInterface
     
     public function resizeToBestFit($max_width, $max_height, $allow_enlarge = false)
     {
-        if ($this->getSourceWidth() <= $max_width && $this->getSourceHeight() <= $max_height && $allow_enlarge === false) {
+        if ($this->getSourceWidth() <= $max_width && $this->getSourceHeight() <= $max_height && !$allow_enlarge) {
             return $this;
         }
         
@@ -513,8 +537,9 @@ class ImageResize implements ImageResizeInterface
     
     public function scale($scale)
     {
-        if ($scale === 100)
+        if ($scale === 100) {
             return $this;
+        }
         
         $width = $this->getSourceWidth() * $scale / 100;
         $height = $this->getSourceHeight() * $scale / 100;
@@ -526,15 +551,12 @@ class ImageResize implements ImageResizeInterface
     
     public function resize($width, $height, $allow_enlarge = false)
     {
-        if (!$allow_enlarge) {
-            // if the user hasn't explicitly allowed enlarging,
-            // but either of the dimensions are larger then the original,
-            // then just use original dimensions - this logic may need rethinking
-            
-            if ($width > $this->getSourceWidth() || $height > $this->getSourceHeight()) {
-                $width = $this->getSourceWidth();
-                $height = $this->getSourceHeight();
-            }
+        // if the user hasn't explicitly allowed enlarging,
+        // but either of the dimensions are larger then the original,
+        // then just use original dimensions - this logic may need rethinking
+        if (!$allow_enlarge && ($width > $this->getSourceWidth() || $height > $this->getSourceHeight())) {
+            $width = $this->getSourceWidth();
+            $height = $this->getSourceHeight();
         }
         
         $this->source_x = 0;
@@ -598,17 +620,9 @@ class ImageResize implements ImageResizeInterface
         }
         $this->source_x = $x;
         $this->source_y = $y;
-        if ($width > $this->getSourceWidth() - $x) {
-            $this->source_w = $this->getSourceWidth() - $x;
-        } else {
-            $this->source_w = $width;
-        }
+        $this->source_w = $width > $this->getSourceWidth() - $x ? $this->getSourceWidth() - $x : $width;
         
-        if ($height > $this->getSourceHeight() - $y) {
-            $this->source_h = $this->getSourceHeight() - $y;
-        } else {
-            $this->source_h = $height;
-        }
+        $this->source_h = $height > $this->getSourceHeight() - $y ? $this->getSourceHeight() - $y : $height;
         
         $this->dest_w = $width;
         $this->dest_h = $height;
@@ -741,5 +755,5 @@ class ImageResize implements ImageResizeInterface
         $this->quality_webp = $quality ?: $this->quality_webp;
         return $this;
     }
-    
+
 }

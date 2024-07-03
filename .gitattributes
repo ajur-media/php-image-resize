@@ -8,3 +8,7 @@
 test                export-ignore
 vendor              export-ignore
 makefile            export-ignore
+phpunit.xml         export-ignore
+README.legacy.md    export-ignore
+
+
