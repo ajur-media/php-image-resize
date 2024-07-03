@@ -11,7 +11,7 @@ setup_env:	##@localhost Setup environment at localhost
 	@echo Setting up local environment
 	@composer install
 
-phpunit:       ##@localhost Make tests
+test:       ##@localhost Make tests
 	@./vendor/bin/phpunit
 
 # ------------------------------------------------

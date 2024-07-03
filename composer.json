@@ -28,12 +28,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Gumlet\\": "lib/"
+      "AJUR\\Toolkit\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Gumlet\\": "test/"
+      "AJUR\\Toolkit\\": "tests/"
     }
   },
   "require-dev": {

@@ -1,7 +1,8 @@
 <?php
 
-use \Gumlet\ImageResize;
-use \Gumlet\ImageResizeException;
+
+use AJUR\Toolkit\ImageResize;
+use AJUR\Toolkit\ImageResizeException;
 use \PHPUnit\Framework\TestCase;
 
 class ImageResizeTest extends TestCase
@@ -28,7 +29,7 @@ class ImageResizeTest extends TestCase
         $resize = new ImageResize($image);
 
         $this->assertEquals(IMAGETYPE_GIF, $resize->source_type);
-        $this->assertInstanceOf('\Gumlet\ImageResize', $resize);
+        $this->assertInstanceOf('\AJUR\Toolkit\ImageResize', $resize);
     }
 
     public function testLoadJpg()
@@ -37,7 +38,7 @@ class ImageResizeTest extends TestCase
         $resize = new ImageResize($image);
 
         $this->assertEquals(IMAGETYPE_JPEG, $resize->source_type);
-        $this->assertInstanceOf('\Gumlet\ImageResize', $resize);
+        $this->assertInstanceOf('\AJUR\Toolkit\ImageResize', $resize);
     }
 
     public function testLoadIgnoreXmpExifJpg()
@@ -46,7 +47,7 @@ class ImageResizeTest extends TestCase
         $resize = new ImageResize($image);
 
         $this->assertEquals(IMAGETYPE_JPEG, $resize->source_type);
-        $this->assertInstanceOf('\Gumlet\ImageResize', $resize);
+        $this->assertInstanceOf('\AJUR\Toolkit\ImageResize', $resize);
     }
 
     public function testLoadPng()
@@ -55,7 +56,7 @@ class ImageResizeTest extends TestCase
         $resize = new ImageResize($image);
 
         $this->assertEquals(IMAGETYPE_PNG, $resize->source_type);
-        $this->assertInstanceOf('\Gumlet\ImageResize', $resize);
+        $this->assertInstanceOf('\AJUR\Toolkit\ImageResize', $resize);
     }
 
     public function testLoadWebp()
@@ -64,7 +65,7 @@ class ImageResizeTest extends TestCase
         $resize = new ImageResize($image);
 
         $this->assertEquals(IMAGETYPE_WEBP, $resize->source_type);
-        $this->assertInstanceOf('\Gumlet\ImageResize', $resize);
+        $this->assertInstanceOf('\AJUR\Toolkit\ImageResize', $resize);
     }
 
     public function testLoadString()
@@ -72,7 +73,7 @@ class ImageResizeTest extends TestCase
         $resize = ImageResize::createFromString(base64_decode($this->image_string));
 
         $this->assertEquals(IMAGETYPE_GIF, $resize->source_type);
-        $this->assertInstanceOf('\Gumlet\ImageResize', $resize);
+        $this->assertInstanceOf('\AJUR\Toolkit\ImageResize', $resize);
     }
 
     public function testLoadRfc2397()
@@ -80,7 +81,7 @@ class ImageResizeTest extends TestCase
       $resize = new ImageResize($this->data_url);
 
       $this->assertEquals(IMAGETYPE_GIF, $resize->source_type);
-      $this->assertInstanceOf('\Gumlet\ImageResize', $resize);
+      $this->assertInstanceOf('\AJUR\Toolkit\ImageResize', $resize);
     }
 
     public function testAddFilter()
@@ -89,7 +90,7 @@ class ImageResizeTest extends TestCase
         $resize = new ImageResize($image);
         $filename = $this->getTempFile();
 
-        $this->assertInstanceOf('\Gumlet\ImageResize', $resize->addFilter('imagefilter'));
+        $this->assertInstanceOf('\AJUR\Toolkit\ImageResize', $resize->addFilter('imagefilter'));
     }
 
     public function testApplyFilter()
@@ -99,7 +100,7 @@ class ImageResizeTest extends TestCase
         $resize->addFilter('imagefilter');
         $filename = $this->getTempFile();
 
-        $this->assertInstanceOf('\Gumlet\ImageResize', $resize->save($filename));
+        $this->assertInstanceOf('\AJUR\Toolkit\ImageResize', $resize->save($filename));
     }
 
     /**
@@ -109,29 +110,29 @@ class ImageResizeTest extends TestCase
     public function testLoadNoFile()
     {
         $this->expectExceptionMessage("No filename given");
-        $this->expectException(\Gumlet\ImageResizeException::class);
+        $this->expectException(ImageResizeException::class);
         new ImageResize(null);
     }
 
     public function testLoadUnsupportedFile()
     {
-        $this->expectExceptionMessage("Gumlet\ImageResize ERROR: Could not read file");
-        $this->expectException(\Gumlet\ImageResizeException::class);
+        $this->expectExceptionMessage("AJUR\Toolkit\ImageResize ERROR: Could not read file");
+        $this->expectException(ImageResizeException::class);
         new ImageResize(__FILE__);
     }
 
     public function testLoadUnsupportedFileString()
     {
         $this->expectExceptionMessage("image_data must not be empty");
-        $this->expectException(\Gumlet\ImageResizeException::class);
+        $this->expectException(ImageResizeException::class);
         ImageResize::createFromString('');
     }
 
     /*public function testLoadUnsupportedImage()
     {
         // хер его знает почему не работает тест...
-        // $this->expectExceptionMessage("Gumlet\ImageResize ERROR: Unsupported image type");
-        // $this->expectException(\Gumlet\ImageResizeException::class);
+        $this->expectExceptionMessage("AJUR\Toolkit\ImageResize ERROR: Unsupported image type");
+        $this->expectException(\AJUR\Toolkit\ImageResizeException::class);
         $filename = $this->getTempFile();
 
         $image = fopen($filename, 'w');
@@ -143,8 +144,8 @@ class ImageResizeTest extends TestCase
 
     /*public function testInvalidString()
     {
-        $this->expectExceptionMessage("Gumlet\ImageResize ERROR: Unsupported image type");
-        $this->expectException(\Gumlet\ImageResizeException::class);
+        $this->expectExceptionMessage("AJUR\Toolkit\ImageResize ERROR: Unsupported image type");
+        $this->expectException(\AJUR\Toolkit\ImageResizeException::class);
         ImageResize::createFromString(base64_decode($this->unsupported_image));
     }*/
 
@@ -317,7 +318,7 @@ class ImageResizeTest extends TestCase
 
         $resize->crop(50, 50, false, $resize::CROPRIGHT);
 
-        $reflection_class = new ReflectionClass('\Gumlet\ImageResize');
+        $reflection_class = new ReflectionClass('\AJUR\Toolkit\ImageResize');
         $source_x = $reflection_class->getProperty('source_x');
         $source_x->setAccessible(true);
 
@@ -325,7 +326,7 @@ class ImageResizeTest extends TestCase
 
         $resize->crop(50, 50, false, $resize::CROPCENTRE);
 
-        $reflection_class = new ReflectionClass('\Gumlet\ImageResize');
+        $reflection_class = new ReflectionClass('\AJUR\Toolkit\ImageResize');
         $source_x = $reflection_class->getProperty('source_x');
         $source_x->setAccessible(true);
 
@@ -333,7 +334,7 @@ class ImageResizeTest extends TestCase
 
         $resize->crop(50, 50, false, $resize::CROPTOPCENTER);
 
-        $reflection_class = new ReflectionClass('\Gumlet\ImageResize');
+        $reflection_class = new ReflectionClass('\AJUR\Toolkit\ImageResize');
         $source_x = $reflection_class->getProperty('source_x');
         $source_x->setAccessible(true);
 

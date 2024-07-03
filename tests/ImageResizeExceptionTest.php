@@ -1,7 +1,6 @@
 <?php
 
-use \Gumlet\ImageResize;
-use \Gumlet\ImageResizeException;
+use AJUR\Toolkit\ImageResizeException;
 use \PHPUnit\Framework\TestCase;
 
 class ImageResizeExceptionTest extends TestCase
@@ -11,7 +10,7 @@ class ImageResizeExceptionTest extends TestCase
         $e = new ImageResizeException();
 
         $this->assertEquals("", $e->getMessage());
-        $this->assertInstanceOf('\Gumlet\ImageResizeException', $e);
+        $this->assertInstanceOf('AJUR\Toolkit\ImageResizeException', $e);
     }
 
     public function testExceptionMessage()
@@ -19,7 +18,7 @@ class ImageResizeExceptionTest extends TestCase
         $e = new ImageResizeException("General error");
 
         $this->assertEquals("General error", $e->getMessage());
-        $this->assertInstanceOf('\Gumlet\ImageResizeException', $e);
+        $this->assertInstanceOf('AJUR\Toolkit\ImageResizeException', $e);
     }
 
     public function testExceptionExtending()
@@ -35,7 +34,7 @@ class ImageResizeExceptionTest extends TestCase
             throw new ImageResizeException("General error");
         } catch (\Exception $e) {
             $this->assertEquals("General error", $e->getMessage());
-            $this->assertInstanceOf('\Gumlet\ImageResizeException', $e);
+            $this->assertInstanceOf('AJUR\Toolkit\ImageResizeException', $e);
             return;
         }
         $this->fail();

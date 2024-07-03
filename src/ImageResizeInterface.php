@@ -1,6 +1,6 @@
 <?php
 
-namespace Gumlet;
+namespace AJUR\Toolkit;
 
 interface ImageResizeInterface
 {
