@@ -4,17 +4,26 @@ namespace Gumlet;
 
 interface ImageResizeInterface
 {
-    const CROPTOP = 1;
-    const CROPCENTRE = 2;
-    const CROPCENTER = 2;
-    const CROPBOTTOM = 3;
-    const CROPLEFT = 4;
-    const CROPRIGHT = 5;
-    const CROPTOPCENTER = 6;
-    const IMG_FLIP_HORIZONTAL = 0;
-    const IMG_FLIP_VERTICAL = 1;
-    const IMG_FLIP_BOTH = 2;
-    
+    public const CROPTOP = 1;
+
+    public const CROPCENTRE = 2;
+
+    public const CROPCENTER = 2;
+
+    public const CROPBOTTOM = 3;
+
+    public const CROPLEFT = 4;
+
+    public const CROPRIGHT = 5;
+
+    public const CROPTOPCENTER = 6;
+
+    public const IMG_FLIP_HORIZONTAL = 0;
+
+    public const IMG_FLIP_VERTICAL = 1;
+
+    public const IMG_FLIP_BOTH = 2;
+
     /**
      * Loads image source and its properties to the instanciated object
      *
@@ -23,7 +32,7 @@ interface ImageResizeInterface
      * @throws ImageResizeException
      */
     public function __construct($filename);
-    
+
     /**
      * Create instance from a string
      *
@@ -32,15 +41,12 @@ interface ImageResizeInterface
      * @throws ImageResizeException
      */
     public static function createFromString(string $image_data): ImageResize;
-    
+
     /**
      * Add filter function for use right before save image to file.
-     *
-     * @param callable $filter
-     * @return $this
      */
     public function addFilter(callable $filter): ImageResizeInterface;
-    
+
     /**
      * Creating
      *
@@ -51,7 +57,7 @@ interface ImageResizeInterface
      * @throws ImageResizeException
      */
     public function imageCreateJpegfromExif($filename);
-    
+
     /**
      * Saves new image
      *
@@ -64,8 +70,8 @@ interface ImageResizeInterface
      * @throws ImageResizeException
      */
     public function save($filename, $image_type = null, $quality = null, $permissions = null, $exact_size = false);
-    
-    
+
+
     /**
      * Convert the image to string
      *
@@ -75,7 +81,7 @@ interface ImageResizeInterface
      * @throws ImageResizeException
      */
     public function getImageAsString($image_type = null, $quality = null);
-    
+
     /**
      * Convert the image to string with the current settings
      *
@@ -83,7 +89,7 @@ interface ImageResizeInterface
      * @throws ImageResizeException
      */
     public function __toString();
-    
+
     /**
      * Outputs image to browser
      *
@@ -92,7 +98,7 @@ interface ImageResizeInterface
      * @throws ImageResizeException
      */
     public function output($image_type = null, $quality = null);
-    
+
     /**
      * [FLUENT] Resizes image according to the given short side (short side proportional)
      *
@@ -101,7 +107,7 @@ interface ImageResizeInterface
      * @return static
      */
     public function resizeToShortSide($max_short, $allow_enlarge = false);
-    
+
     /**
      * [FLUENT] Resizes image according to the given long side (short side proportional)
      *
@@ -110,7 +116,7 @@ interface ImageResizeInterface
      * @return static
      */
     public function resizeToLongSide($max_long, $allow_enlarge = false);
-    
+
     /**
      * [FLUENT] Resizes image according to the given height (width proportional)
      *
@@ -119,7 +125,7 @@ interface ImageResizeInterface
      * @return static
      */
     public function resizeToHeight($height, $allow_enlarge = false);
-    
+
     /**
      * [FLUENT] Resizes image according to the given width (height proportional)
      *
@@ -128,7 +134,7 @@ interface ImageResizeInterface
      * @return static
      */
     public function resizeToWidth($width, $allow_enlarge = false);
-    
+
     /**
      * [FLUENT] Resizes image to best fit inside the given dimensions
      *
@@ -138,7 +144,7 @@ interface ImageResizeInterface
      * @return static
      */
     public function resizeToBestFit($max_width, $max_height, $allow_enlarge = false);
-    
+
     /**
      * [FLUENT] Resizes image according to given scale (proportionally)
      *
@@ -146,7 +152,7 @@ interface ImageResizeInterface
      * @return static
      */
     public function scale($scale);
-    
+
     /**
      * [FLUENT] Resizes image according to the given width and height
      *
@@ -156,7 +162,7 @@ interface ImageResizeInterface
      * @return static
      */
     public function resize($width, $height, $allow_enlarge = false);
-    
+
     /**
      * [FLUENT] Crops image according to the given width, height and crop position
      *
@@ -167,7 +173,7 @@ interface ImageResizeInterface
      * @return static
      */
     public function crop($width, $height, $allow_enlarge = false, $position = self::CROPCENTER);
-    
+
     /**
      * [FLUENT] Crops image according to the given width, height, x and y
      *
@@ -178,34 +184,34 @@ interface ImageResizeInterface
      * @return static
      */
     public function freecrop($width, $height, $x = false, $y = false);
-    
+
     /**
      * Gets source width
      *
      * @return integer
      */
     public function getSourceWidth();
-    
+
     /**
      * Gets source height
      *
      * @return integer
      */
     public function getSourceHeight();
-    
+
     /**
      * Gets width of the destination image
      *
      * @return integer
      */
     public function getDestWidth();
-    
+
     /**
      * Gets height of the destination image
      * @return integer
      */
     public function getDestHeight();
-    
+
     /**
      * Enable or not the gamma color correction on the image, enabled by default
      *
@@ -213,7 +219,7 @@ interface ImageResizeInterface
      * @return static
      */
     public function gamma($enable = true);
-    
+
     /**
      * Flips an image using a given mode if PHP version is lower than 5.5
      *
@@ -221,7 +227,7 @@ interface ImageResizeInterface
      * @param integer $mode
      */
     public function imageFlip($image, $mode);
-    
+
     /**
      * Set JPEG Quality
      *
@@ -229,13 +235,13 @@ interface ImageResizeInterface
      * @return static
      */
     public function setQualityJPEG($quality);
-    
+
     /**
      * @param $quality
      * @return static
      */
     public function setQualityPNG($quality);
-    
+
     /**
      * @param $quality
      * @return static

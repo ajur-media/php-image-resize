@@ -12,12 +12,8 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Aditya Patadia",
-      "homepage": "http://aditya.patadia.org/"
-    },
-    {
       "name": "Karel Wintersky",
-      "homepage": "http://wintersky.me"
+      "homepage": "https://karel.wintersky.ru"
     }
   ],
   "require": {
@@ -41,8 +37,9 @@
     }
   },
   "require-dev": {
-    "phpunit/phpunit": "^4.8",
+    "phpunit/phpunit": "^8.5 | ^9.5",
     "apigen/apigen": "^4.1",
-    "php-coveralls/php-coveralls": "^2.1"
+    "php-coveralls/php-coveralls": "^2.1",
+    "rector/rector": "^1.2"
   }
 }
