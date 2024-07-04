@@ -69,7 +69,7 @@ interface ImageResizeInterface
      * @return static
      * @throws ImageResizeException
      */
-    public function save($filename, $image_type = null, $quality = null, $permissions = null, $exact_size = false);
+    public function save($filename, $image_type = null, $quality = null, $permissions = null, $exact_size = []);
 
 
     /**
@@ -218,15 +218,7 @@ interface ImageResizeInterface
      * @param bool $enable
      * @return static
      */
-    public function gamma($enable = true);
-
-    /**
-     * Flips an image using a given mode if PHP version is lower than 5.5
-     *
-     * @param resource $image
-     * @param integer $mode
-     */
-    public function imageFlip($image, $mode);
+    public function gamma($enable = false);
 
     /**
      * Set JPEG Quality

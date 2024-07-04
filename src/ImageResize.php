@@ -194,26 +194,21 @@ class ImageResize implements ImageResizeInterface
         }
 
         if ($orientation === 5 || $orientation === 4 || $orientation === 7) {
-            if (function_exists( 'imageflip' )) {
-                if (!imageflip( $img, IMG_FLIP_HORIZONTAL )) {
-                    throw new ImageResizeException(self::class . ' ERROR: Flipping image failed.');
-                }
-
-            } else {
-                $this->imageFlip( $img, IMG_FLIP_HORIZONTAL );
+            if (!imageflip( $img, IMG_FLIP_HORIZONTAL )) {
+                throw new ImageResizeException(self::class . ' ERROR: Flipping image failed.');
             }
         }
 
         return $img;
     }
 
-    public function save($filename, $image_type = null, $quality = null, $permissions = null, $exact_size = false): self
+    public function save($filename, $image_type = null, $quality = null, $permissions = null, $exact_size = []): self
     {
         $image_type = $image_type ?: $this->source_type;
         $quality = is_numeric( $quality ) ? (int)abs( $quality ) : null;
         $source_image = $this->source_image;
 
-        if (!empty($exact_size) && is_array($exact_size)) {
+        if (!empty($exact_size)) {
             $_width = $exact_size[0];
             $_height = $exact_size[1];
         } else {
@@ -327,6 +322,19 @@ class ImageResize implements ImageResizeInterface
 
                 if (!imagefill( $dest_image, 0, 0, $transparent_color )) {
                     throw new ImageResizeException(self::class . ' Error: filling image with background alpha color failed');
+                }
+
+                break;
+            }
+            case IMAGETYPE_BMP: {
+                if (!empty($exact_size)) {
+                    $dest_image = imagecreatetruecolor($exact_size[0], $exact_size[1]);
+                    $background = imagecolorallocate($dest_image, 255, 255, 255);
+                    imagefilledrectangle($dest_image, 0, 0, $exact_size[0], $exact_size[1], $background);
+                } else {
+                    $dest_image = imagecreatetruecolor($this->getDestWidth(), $this->getDestHeight());
+                    $background = imagecolorallocate($dest_image, 255, 255, 255);
+                    imagefilledrectangle($dest_image, 0, 0, $this->getDestWidth(), $this->getDestHeight(), $background);
                 }
 
                 break;
@@ -475,12 +483,12 @@ class ImageResize implements ImageResizeInterface
     {
         if ($this->getSourceHeight() < $this->getSourceWidth()) {
             $ratio = $max_short / $this->getSourceHeight();
-            $long = $this->getSourceWidth() * $ratio;
+            $long = (int)round($this->getSourceWidth() * $ratio);
 
             $this->resize($long, $max_short, $allow_enlarge);
         } else {
             $ratio = $max_short / $this->getSourceWidth();
-            $long = $this->getSourceHeight() * $ratio;
+            $long = (int)round($this->getSourceHeight() * $ratio);
 
             $this->resize($max_short, $long, $allow_enlarge);
         }
@@ -492,12 +500,12 @@ class ImageResize implements ImageResizeInterface
     {
         if ($this->getSourceHeight() > $this->getSourceWidth()) {
             $ratio = $max_long / $this->getSourceHeight();
-            $short = $this->getSourceWidth() * $ratio;
+            $short = (int)round($this->getSourceWidth() * $ratio);
 
             $this->resize( $short, $max_long, $allow_enlarge );
         } else {
             $ratio = $max_long / $this->getSourceWidth();
-            $short = $this->getSourceHeight() * $ratio;
+            $short = (int)round($this->getSourceHeight() * $ratio);
 
             $this->resize( $max_long, $short, $allow_enlarge );
         }
@@ -508,7 +516,7 @@ class ImageResize implements ImageResizeInterface
     public function resizeToHeight($height, $allow_enlarge = false): self
     {
         $ratio = $height / $this->getSourceHeight();
-        $width = $this->getSourceWidth() * $ratio;
+        $width = (int)round($this->getSourceWidth() * $ratio);
 
         $this->resize( $width, $height, $allow_enlarge );
 
@@ -518,7 +526,7 @@ class ImageResize implements ImageResizeInterface
     public function resizeToWidth($width, $allow_enlarge = false): self
     {
         $ratio = $width / $this->getSourceWidth();
-        $height = $this->getSourceHeight() * $ratio;
+        $height = (int)round($this->getSourceHeight() * $ratio);
 
         $this->resize( $width, $height, $allow_enlarge );
 
@@ -539,6 +547,7 @@ class ImageResize implements ImageResizeInterface
             $height = $max_height;
             $width = (int)round( $height / $ratio );
         }
+        $height = (int)round($height);
 
         return $this->resize( $width, $height, $allow_enlarge );
     }
@@ -549,8 +558,8 @@ class ImageResize implements ImageResizeInterface
             return $this;
         }
 
-        $width = $this->getSourceWidth() * $scale / 100;
-        $height = $this->getSourceHeight() * $scale / 100;
+        $width = (int)round($this->getSourceWidth() * $scale / 100);
+        $height = (int)round($this->getSourceHeight() * $scale / 100);
 
         $this->resize( $width, $height, true );
 
@@ -601,7 +610,7 @@ class ImageResize implements ImageResizeInterface
         if ($ratio_dest < $ratio_source) {
             $this->resizeToHeight( $height, $allow_enlarge );
 
-            $excess_width = ($this->getDestWidth() - $width) / $this->getDestWidth() * $this->getSourceWidth();
+            $excess_width = (int)round(($this->getDestWidth() - $width) / $this->getDestWidth() * $this->getSourceWidth());
 
             $this->source_w = $this->getSourceWidth() - $excess_width;
             $this->source_x = $this->getCropPosition( $excess_width, $position );
@@ -610,7 +619,7 @@ class ImageResize implements ImageResizeInterface
         } else {
             $this->resizeToWidth( $width, $allow_enlarge );
 
-            $excess_height = ($this->getDestHeight() - $height) / $this->getDestHeight() * $this->getSourceHeight();
+            $excess_height = (int)round(($this->getDestHeight() - $height) / $this->getDestHeight() * $this->getSourceHeight());
 
             $this->source_h = $this->getSourceHeight() - $excess_height;
             $this->source_y = $this->getCropPosition( $excess_height, $position );
@@ -696,57 +705,10 @@ class ImageResize implements ImageResizeInterface
                 break;
         }
 
-        return $size;
+        return (int)round($size);
     }
 
-    public function imageFlip($image, $mode)
-    {
-        switch ($mode) {
-            case self::IMG_FLIP_HORIZONTAL:
-            {
-                $max_x = imagesx( $image ) - 1;
-                $half_x = $max_x / 2;
-                $sy = imagesy( $image );
-                $temp_image = imageistruecolor( $image ) ? imagecreatetruecolor( 1, $sy ) : imagecreate( 1, $sy );
-                for ($x = 0; $x < $half_x; ++$x) {
-                    imagecopy( $temp_image, $image, 0, 0, $x, 0, 1, $sy );
-                    imagecopy( $image, $image, $x, 0, $max_x - $x, 0, 1, $sy );
-                    imagecopy( $image, $temp_image, $max_x - $x, 0, 0, 0, 1, $sy );
-                }
-
-                break;
-            }
-            case self::IMG_FLIP_VERTICAL:
-            {
-                $sx = imagesx( $image );
-                $max_y = imagesy( $image ) - 1;
-                $half_y = $max_y / 2;
-                $temp_image = imageistruecolor( $image ) ? imagecreatetruecolor( $sx, 1 ) : imagecreate( $sx, 1 );
-                for ($y = 0; $y < $half_y; ++$y) {
-                    imagecopy( $temp_image, $image, 0, 0, 0, $y, $sx, 1 );
-                    imagecopy( $image, $image, 0, $y, 0, $max_y - $y, $sx, 1 );
-                    imagecopy( $image, $temp_image, 0, $max_y - $y, 0, 0, $sx, 1 );
-                }
-
-                break;
-            }
-            case self::IMG_FLIP_BOTH:
-            {
-                $sx = imagesx( $image );
-                $sy = imagesy( $image );
-                $temp_image = imagerotate( $image, 180, 0 );
-                imagecopy( $image, $temp_image, 0, 0, 0, 0, $sx, $sy );
-                break;
-            }
-            default:
-                return null;
-        }
-
-        imagedestroy( $temp_image );
-        return null;
-    }
-
-    public function gamma($enable = true): self
+    public function gamma($enable = false): self
     {
         $this->gamma_correction = $enable;
         return $this;
