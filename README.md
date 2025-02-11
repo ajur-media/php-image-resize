@@ -5,8 +5,6 @@ ajur-media/php-image-resize
 
 PHP library to resize, scale and crop images.
 
-![Build Status](https://github.com/gumlet/php-image-resize/workflows/PHP%20CI/badge.svg) [![Latest Stable Version](https://poser.pugx.org/gumlet/php-image-resize/v/stable)](https://packagist.org/packages/gumlet/php-image-resize) [![Monthly Downloads](https://poser.pugx.org/gumlet/php-image-resize/d/monthly)](https://packagist.org/packages/gumlet/php-image-resize) [![Coverage Status](https://coveralls.io/repos/github/gumlet/php-image-resize/badge.svg?branch=master)](https://coveralls.io/github/gumlet/php-image-resize?branch=master)
-
 This library is enhanced fork of https://github.com/gumlet/php-image-resize created for AJUR Media.
 
 ------------------
@@ -16,19 +14,21 @@ Setup
 
 This package is available through Packagist with the vendor and package identifier the same as this repo.
 
-Use [Composer](https://getcomposer.org/): `composer require ajur-media/php-image-resize`
+Use [Composer](https://getcomposer.org/): 
+
+`composer require ajur-media/php-image-resize`
 
 Because this class uses namespacing, when instantiating the object, you need to either use the fully qualified namespace:
 
 ```php
-$image = new \Gumlet\ImageResize();
+$image = new \AJUR\Toolkit\ImageResize();
 ```
 
 Or alias it:
 
 ```php
 
-use \Gumlet\ImageResize;
+use AJUR\Toolkit\ImageResize;
 
 $image = new ImageResize();
 ```
@@ -204,6 +204,7 @@ If you would like to save/output in a different image type, you need to pass a (
 - `IMAGETYPE_GIF`
 - `IMAGETYPE_JPEG`
 - `IMAGETYPE_PNG`
+- `IMAGETYPE_BMP`
 
 This allows you to save in a different type to the source:
 
@@ -225,7 +226,7 @@ $image->resize(800, 600);
 $image->save('image2.jpg');
 ```
 
-By default they are set to 85 and 6 respectively. See the manual entries for [`imagejpeg()`](http://www.php.net/manual/en/function.imagejpeg.php) and [`imagepng()`](http://www.php.net/manual/en/function.imagepng.php) for more info.
+By default, they are set to 85 and 6 respectively. See the manual entries for [`imagejpeg()`](http://www.php.net/manual/en/function.imagejpeg.php) and [`imagepng()`](http://www.php.net/manual/en/function.imagepng.php) for more info.
 
 You can also pass the quality directly to the `save()`, `output()` and `getImageAsString()` methods:
 
@@ -347,18 +348,10 @@ $image = new ImageResize('image.png');
 $image->gamma(true);
 ```
 
-API Doc
--------
-
-https://gumlet.github.io/php-image-resize/index.html
-
-------------------
 
 Maintainer
 ----------
 
 This library is maintained by <a href="https://www.gumlet.com" target="_blank">Gumlet.com</a>
-
-[<img src="https://www.gumlet.com/public/img/logo.png" width="300px">](https://www.gumlet.com)
 
 This fork is maintained by Karel Wintersky <karel.wintersky@gmail.com>
