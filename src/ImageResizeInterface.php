@@ -31,7 +31,7 @@ interface ImageResizeInterface
      * @return ImageResize
      * @throws ImageResizeException
      */
-    public function __construct($filename);
+    public function __construct(string $filename);
 
     /**
      * Create instance from a string
@@ -66,7 +66,7 @@ interface ImageResizeInterface
      * @param integer $quality
      * @param integer $permissions
      * @param boolean $exact_size
-     * @return static
+     * @return self
      * @throws ImageResizeException
      */
     public function save($filename, $image_type = null, $quality = null, $permissions = null, $exact_size = []);

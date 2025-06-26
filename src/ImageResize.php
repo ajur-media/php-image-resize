@@ -79,7 +79,7 @@ class ImageResize implements ImageResizeInterface
         return new self( 'data://application/octet-stream;base64,'.base64_encode( $image_data ) );
     }
 
-    public function __construct($filename)
+    public function __construct(string $filename)
     {
         if (empty($filename)) {
             throw new ImageResizeException(self::class . " ERROR: No filename given");
@@ -89,14 +89,14 @@ class ImageResize implements ImageResizeInterface
             throw new ImageResizeException( self::class . " ERROR: Not a file or valid datastream" );
         }
 
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        if (false === $finfo) {
+        $f_info = finfo_open(FILEINFO_MIME_TYPE);
+        if (false === $f_info) {
             throw new ImageResizeException(self::class . " ERROR: Can't retrieve file info.");
         }
 
         $checkWEBP = false;
 
-        if (strstr( finfo_file( $finfo, $filename ), 'image/webp' ) !== false) {
+        if (strstr( finfo_file( $f_info, $filename ), 'image/webp' ) !== false) {
             $checkWEBP = true;
             $this->source_type = IMAGETYPE_WEBP;
         }
@@ -431,6 +431,13 @@ class ImageResize implements ImageResizeInterface
 
                 break;
             }
+            case IMAGETYPE_BMP: {
+                if (!imagebmp($dest_image, $filename)) {
+                    throw new ImageResizeException(self::class . ' ERROR: storing BMP image failed');
+                }
+
+                break;
+            }
         }
 
         if ($permissions && !chmod( $filename, $permissions )) {
@@ -730,6 +737,35 @@ class ImageResize implements ImageResizeInterface
     {
         $this->quality_webp = $quality ?: $this->quality_webp;
         return $this;
+    }
+
+    public function imageFlip($image, $angle = 0)
+    {
+        $angle = (int)$angle % 360;
+
+        switch ($angle) {
+            case 90:
+                $image = imagerotate($image, 90, 0);
+                break;
+            case 180:
+                $image = imagerotate($image, 180, 0);
+                break;
+            case 270:
+                $image = imagerotate($image, -90, 0);
+                break;
+        }
+
+        if ($angle === 90 || $angle === 270) {
+            // Swap width and height after 90/270-degree rotation
+            $this->original_w = imagesy($image);
+            $this->original_h = imagesx($image);
+        }
+
+        if (false === $image) {
+            throw new ImageResizeException(self::class . ' ERROR: Image rotation failed');
+        }
+
+        return $image;
     }
 
 }
